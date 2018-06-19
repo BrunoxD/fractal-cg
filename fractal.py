@@ -18,6 +18,40 @@ FRAC_DEPTH=2
 ANCHORS=[]
 SIZES=[]
 
+# Desenha as legendas na tela.
+def drawSubtitles():
+	text = 'Subtitles' +\
+		'\nl: +x_angle' +\
+		'\nk: +y_angle' +\
+		'\no: +z_angle' +\
+		'\nj: -x_angle' +\
+		'\ni: -y_angle' +\
+		'\nu: -z_angle' +\
+		'\nw: +depth' +\
+		'\ns: -depth' +\
+		'\n+: +zoom' +\
+		'\n-: -zoom' +\
+		'\nr: RESET' +\
+		'\nESC: exit' +\
+		'\n\nParameters:' +\
+		'\nDepth: ('+ str(FRAC_DEPTH) + '/' + str(MAX_DEPTH) + ')' +\
+		'\nX_angle=' + str(round(X_ANGLE, 2)) +\
+		'\nY_angle=' + str(round(Y_ANGLE, 2)) +\
+		'\nZ_angle=' + str(round(Z_ANGLE, 2)) +\
+		'\nzoom=' + str(round(SCALE*100)) + '%'
+	glColor3f(0.75, 0.75, 0.10)
+	glLoadIdentity()
+	
+	yPos = 0.90
+	yInc = 30.0/600
+	glRasterPos2f(-0.98, yPos)
+	for ch in text:
+		if ch != '\n':
+			glutBitmapCharacter(GLUT_BITMAP_9_BY_15, ord(ch))
+		else:
+			yPos -= yInc
+			glRasterPos2f(-0.98, yPos)
+
 # Captura os eventos do teclado.
 def keyPressEvent(key, x, y) :		
 	global X_ANGLE, Y_ANGLE, Z_ANGLE	
@@ -170,6 +204,9 @@ def display():
 	# Desenha o cubo.	
 	drawFractal()
 
+	# Desenha as legendas.
+	drawSubtitles()
+
 	# Troca os buffers.
 	glutSwapBuffers()
 
@@ -188,6 +225,6 @@ if __name__ == '__main__':
 	generate(FRAC_DEPTH, 1.5, [0, 0, 0])
 	glutInit()
 	init()		
-	glutDisplayFunc(display)
+	glutDisplayFunc(display)	
 	glutKeyboardFunc(keyPressEvent)   	
 	glutMainLoop()
