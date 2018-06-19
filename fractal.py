@@ -20,25 +20,25 @@ SIZES=[]
 
 # Desenha as legendas na tela.
 def drawSubtitles():
-	text = 'Subtitles' +\
+	text = 'Subtitles'  +\
 		'\nl: +x_angle' +\
 		'\nk: +y_angle' +\
 		'\no: +z_angle' +\
 		'\nj: -x_angle' +\
 		'\ni: -y_angle' +\
 		'\nu: -z_angle' +\
-		'\nw: +depth' +\
-		'\ns: -depth' +\
-		'\n+: +zoom' +\
-		'\n-: -zoom' +\
-		'\nr: RESET' +\
-		'\nESC: exit' +\
+		'\nw: +depth' 	+\
+		'\ns: -depth' 	+\
+		'\n+: +zoom' 	+\
+		'\n-: -zoom' 	+\
+		'\nr: RESET' 	+\
+		'\nESC: exit' 	+\
 		'\n\nParameters:' +\
 		'\nDepth: ('+ str(FRAC_DEPTH) + '/' + str(MAX_DEPTH) + ')' +\
-		'\nX_angle=' + str(round(X_ANGLE, 2)) +\
-		'\nY_angle=' + str(round(Y_ANGLE, 2)) +\
-		'\nZ_angle=' + str(round(Z_ANGLE, 2)) +\
-		'\nzoom=' + str(round(SCALE*100)) + '%'
+		'\nX_Angle=' + str(round(X_ANGLE, 2)) +\
+		'\nY_Angle=' + str(round(Y_ANGLE, 2)) +\
+		'\nZ_Angle=' + str(round(Z_ANGLE, 2)) +\
+		'\nZoom=' + str(round(SCALE*100)) + '%'
 	glColor3f(0.75, 0.75, 0.10)
 	glLoadIdentity()
 	
@@ -55,7 +55,7 @@ def drawSubtitles():
 # Captura os eventos do teclado.
 def keyPressEvent(key, x, y) :		
 	global X_ANGLE, Y_ANGLE, Z_ANGLE	
-	global SCALE, FRAC_DEPTH
+	global SCALE, FRAC_DEPTH, ANCHORS, SIZES
 
 	# Comandos de Escala.
 	if key == b'+':
@@ -80,14 +80,10 @@ def keyPressEvent(key, x, y) :
 	# Nível de profundidade.
 	elif key == b'w':
 		FRAC_DEPTH = min(FRAC_DEPTH + 1, MAX_DEPTH)		
-		ANCHORS.clear()
-		SIZES.clear()
-		generate(FRAC_DEPTH, 1.5, [0, 0, 0])
+		regenerate()
 	elif key == b's':
-		ANCHORS.clear()
-		SIZES.clear()
 		FRAC_DEPTH = max(FRAC_DEPTH-1, 0)
-		generate(FRAC_DEPTH, 1.5, [0, 0, 0])
+		regenerate()
 	
 	# Reset da interface.
 	elif key == b'r':
@@ -95,9 +91,7 @@ def keyPressEvent(key, x, y) :
 		SCALE=SCALE_X=SCALE_Y=SCALE_Z=1.0 				
 		SCALE=1.0	
 		FRAC_DEPTH=2
-		ANCHORS.clear()
-		SIZES.clear()
-		generate(FRAC_DEPTH, 1.5, [0, 0, 0])
+		regenerate()
 	
 	# Exit (ESC).
 	elif key == b'\x1b': 		
@@ -107,6 +101,12 @@ def keyPressEvent(key, x, y) :
 	# Redesenha o objeto.
 	glutPostRedisplay()	
 
+# Regera as dimensões do cubo para uma nova profundidade.
+def regenerate():
+	ANCHORS.clear()
+	SIZES.clear()
+	generate(FRAC_DEPTH, 1.5, [0, 0, 0])
+
 # Desenha cada um dos cubos armazenados.
 def drawFractal():
 	for i in range(len(ANCHORS)): 
@@ -115,8 +115,8 @@ def drawFractal():
 # Gera dimensões dos cubos via recursão.
 def generate(depth, size, anchor):
 	if(depth <= 0):
-		ANCHORS.append(anchor) # Lista de vetores de posição.
-		SIZES.append(size) # Lista de tamanhos.
+		ANCHORS.append(anchor) # Lista de vetores de origens.
+		SIZES.append(size) # Lista de deslocamentos.
 		return		
 	for i in range(3):
 		for j in range(3):
