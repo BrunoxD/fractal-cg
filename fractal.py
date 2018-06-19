@@ -13,11 +13,15 @@ SCALE_INC=0.05
 SCALE_MAX=1.0
 SCALE_MIN=0.025	
 ROTATION_INC=2.0
+MAX_DEPTH = 5
+FRAC_DEPTH=2
+ANCHORS=[]
+SIZES=[]
 
 # Captura os eventos do teclado.
 def keyPressEvent(key, x, y) :		
 	global X_ANGLE, Y_ANGLE, Z_ANGLE	
-	global SCALE, ENABLE_RENDER
+	global SCALE, FRAC_DEPTH
 
 	# Comandos de Escala.
 	if key == b'+':
@@ -38,12 +42,25 @@ def keyPressEvent(key, x, y) :
 		Z_ANGLE = (Z_ANGLE + ROTATION_INC) % 360
 	elif key == b'u':
 		Z_ANGLE = (Z_ANGLE - ROTATION_INC) % 360
+
+	# Nível de profundidade.
+	elif key == b'w':
+		FRAC_DEPTH = min(FRAC_DEPTH + 1, MAX_DEPTH)
+		ANCHORS=[]
+		SIZES=[]
+		generate(FRAC_DEPTH, 1.5, [0, 0, 0])
+	elif key == b's':
+		ANCHORS=[]
+		SIZES=[]
+		FRAC_DEPTH = max(FRAC_DEPTH-1, 0)
+		generate(FRAC_DEPTH, 1.5, [0, 0, 0])
 	
 	# Reset da interface.
 	elif key == b'r':
 		X_ANGLE=Y_ANGLE=Z_ANGLE=30.0		
-		SCALE=SCALE_X=SCALE_Y=SCALE_Z=1.0 		
+		SCALE=SCALE_X=SCALE_Y=SCALE_Z=1.0 				
 		SCALE=1.0	
+		FRAC_DEPTH=2
 	
 	# Exit (ESC).
 	elif key == b'\x1b': 		
@@ -52,6 +69,84 @@ def keyPressEvent(key, x, y) :
 
 	# Redesenha o objeto.
 	glutPostRedisplay()	
+
+# Desenha cada um dos cubos armazenados.
+def drawFractal():
+	for i in range(len(ANCHORS)): 
+		drawCube(i) 			
+
+# Gera dimensões dos cubos via recursão.
+def generate(depth, size, anchor):
+	if(depth <= 0):
+		ANCHORS.append(anchor) # Lista de vetores de posição.
+		SIZES.append(size) # Lista de tamanhos.
+		return		
+	for i in range(3):
+		for j in range(3):
+			for k in range(3):
+				if([i, j] != [1, 1] and [i, k] != [1, 1] and [j, k] != [1, 1]):
+					generate(depth-1, size/3, [anchor[0]+(i-1)*size/3, anchor[1]+(j-1)*size/3, anchor[2]+(k-1)*size/3])
+
+# Frente, Traseira, Direita, Esquerda, Topo, Base
+def drawCube(n):
+	pos=SIZES[n]/2 # Variável auxiliar para o posicionamento dos vetores
+
+	# Lado multicolorido - FRENTE
+	glBegin(GL_POLYGON); 	
+	glColor3f(1.0, 0.0, 0.0) # P1 é vermelho
+	glVertex3f(ANCHORS[n][0]+pos, ANCHORS[n][1]-pos, ANCHORS[n][2]-pos)      	
+	glColor3f(0.0, 1.0, 0.0) # P2 é verde
+	glVertex3f(ANCHORS[n][0]+pos, ANCHORS[n][1]+pos, ANCHORS[n][2]-pos)      	
+	glColor3f(0.0, 0.0, 1.0) # P3 é azul
+	glVertex3f(ANCHORS[n][0]-pos, ANCHORS[n][1]+pos, ANCHORS[n][2]-pos)      	
+	glColor3f(1.0, 0.0, 1.0) # P4 é roxo
+	glVertex3f(ANCHORS[n][0]-pos, ANCHORS[n][1]-pos, ANCHORS[n][2]-pos)
+	glEnd();
+
+	# Lado branco - TRASEIRA
+	glBegin(GL_POLYGON);
+	glColor3f(1.0,  1.0, 1.0);
+	glVertex3f(ANCHORS[n][0]+pos, ANCHORS[n][1]-pos, ANCHORS[n][2]+pos);
+	glVertex3f(ANCHORS[n][0]+pos, ANCHORS[n][1]+pos, ANCHORS[n][2]+pos);
+	glVertex3f(ANCHORS[n][0]-pos, ANCHORS[n][1]+pos, ANCHORS[n][2]+pos);
+	glVertex3f(ANCHORS[n][0]-pos, ANCHORS[n][1]-pos, ANCHORS[n][2]+pos);
+	glEnd();
+
+	# Lado roxo - DIREITA
+	glBegin(GL_POLYGON);
+	glColor3f(1.0,  0.0,  1.0);
+	glVertex3f(ANCHORS[n][0]+pos, ANCHORS[n][1]-pos, ANCHORS[n][2]-pos);
+	glVertex3f(ANCHORS[n][0]+pos, ANCHORS[n][1]+pos, ANCHORS[n][2]-pos);
+	glVertex3f(ANCHORS[n][0]+pos, ANCHORS[n][1]+pos, ANCHORS[n][2]+pos);
+	glVertex3f(ANCHORS[n][0]+pos, ANCHORS[n][1]-pos, ANCHORS[n][2]+pos);
+	glEnd();
+
+	# Lado verde - ESQUERDA
+	glBegin(GL_POLYGON);
+	glColor3f(0.0,  1.0,  0.0);
+	glVertex3f(ANCHORS[n][0]-pos, ANCHORS[n][1]-pos, ANCHORS[n][2]+pos);
+	glVertex3f(ANCHORS[n][0]-pos, ANCHORS[n][1]+pos, ANCHORS[n][2]+pos);
+	glVertex3f(ANCHORS[n][0]-pos, ANCHORS[n][1]+pos, ANCHORS[n][2]-pos);
+	glVertex3f(ANCHORS[n][0]-pos, ANCHORS[n][1]-pos, ANCHORS[n][2]-pos);
+	glEnd();
+
+	# Lado azul - TOPO
+	glBegin(GL_POLYGON);
+	glColor3f(0.0,  0.0,  1.0);
+	glVertex3f(ANCHORS[n][0]+pos,  ANCHORS[n][1]+pos, ANCHORS[n][2]+pos);
+	glVertex3f(ANCHORS[n][0]+pos,  ANCHORS[n][1]+pos, ANCHORS[n][2]-pos);
+	glVertex3f(ANCHORS[n][0]-pos,  ANCHORS[n][1]+pos, ANCHORS[n][2]-pos);
+	glVertex3f(ANCHORS[n][0]-pos,  ANCHORS[n][1]+pos, ANCHORS[n][2]+pos);
+	glEnd();
+
+	# Lado vermelho - BASE
+	glBegin(GL_POLYGON);
+	glColor3f(1.0,  0.0,  0.0);
+	glVertex3f(ANCHORS[n][0]+pos, ANCHORS[n][1]-pos, ANCHORS[n][2]-pos);
+	glVertex3f(ANCHORS[n][0]+pos, ANCHORS[n][1]-pos, ANCHORS[n][2]+pos);
+	glVertex3f(ANCHORS[n][0]-pos, ANCHORS[n][1]-pos, ANCHORS[n][2]+pos);
+	glVertex3f(ANCHORS[n][0]-pos, ANCHORS[n][1]-pos, ANCHORS[n][2]-pos);
+	glEnd();
 
 def display():    
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
@@ -72,9 +167,8 @@ def display():
 	# Define uma cor para o cubo.
 	glColor3f(1,1,1)
 
-	# Desenha o cubo.
-	#glutSolidCube(1)
-	glutWireCube(1)
+	# Desenha o cubo.	
+	drawFractal()
 
 	# Troca os buffers.
 	glutSwapBuffers()
@@ -91,6 +185,7 @@ def init():
 	glClearColor(0, 0, 0, 0);
 
 if __name__ == '__main__':    
+	generate(FRAC_DEPTH, 1.5, [0, 0, 0])
 	glutInit()
 	init()		
 	glutDisplayFunc(display)
