@@ -95,6 +95,9 @@ def keyPressEvent(key, x, y) :
 		SCALE=SCALE_X=SCALE_Y=SCALE_Z=1.0 				
 		SCALE=1.0	
 		FRAC_DEPTH=2
+		ANCHORS.clear()
+		SIZES.clear()
+		generate(FRAC_DEPTH, 1.5, [0, 0, 0])
 	
 	# Exit (ESC).
 	elif key == b'\x1b': 		
