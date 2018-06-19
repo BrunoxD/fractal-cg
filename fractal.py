@@ -13,7 +13,7 @@ SCALE_INC=0.05
 SCALE_MAX=1.0
 SCALE_MIN=0.025	
 ROTATION_INC=2.0
-MAX_DEPTH = 5
+MAX_DEPTH=3
 FRAC_DEPTH=2
 ANCHORS=[]
 SIZES=[]
@@ -45,13 +45,13 @@ def keyPressEvent(key, x, y) :
 
 	# Nível de profundidade.
 	elif key == b'w':
-		FRAC_DEPTH = min(FRAC_DEPTH + 1, MAX_DEPTH)
-		ANCHORS=[]
-		SIZES=[]
+		FRAC_DEPTH = min(FRAC_DEPTH + 1, MAX_DEPTH)		
+		ANCHORS.clear()
+		SIZES.clear()
 		generate(FRAC_DEPTH, 1.5, [0, 0, 0])
 	elif key == b's':
-		ANCHORS=[]
-		SIZES=[]
+		ANCHORS.clear()
+		SIZES.clear()
 		FRAC_DEPTH = max(FRAC_DEPTH-1, 0)
 		generate(FRAC_DEPTH, 1.5, [0, 0, 0])
 	
